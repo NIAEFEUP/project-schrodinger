@@ -2,6 +2,12 @@ import 'package:uni/model/entities/lecture.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Returns a sorted list which contains the user lectures,
+/// in the form of objects of the class [Lecture].
+///
+/// This function parses the lectures info from the json of the
+/// semester schedule and, when a lecture is found, an 
+/// object of the class [Lecture] is created and added to `lecturesList`./
 Future<List<Lecture>> parseSchedule(http.Response response) async {
   final Set<Lecture> lectures =  Set();
 

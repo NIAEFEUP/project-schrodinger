@@ -3,6 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart';
 import 'dart:async';
+
+/// TODO Should this doc be more descriptive or is this fine?
+/// Manages the exam parsing
+///
+/// This class `ParserExams` contains methods to enable the user to parse
+/// exams information 
 class ParserExams {
 
   final types = {
@@ -13,7 +19,9 @@ class ParserExams {
     'Recurso': 'ER'
   };
 
-
+  /// Returns the abbreviature of the exam season.
+  ///
+  /// If this operation is unsuccessful, an '?' is returned.
   String getExamSeasonAbbr(String seasonStr) {
     for (String type in types.keys) {
       if (seasonStr.contains(type)) return types[type];
@@ -21,6 +29,11 @@ class ParserExams {
     return '?';
   }
 
+  /// Returns a list which contains elements of the class [Exam].
+  ///
+  /// This function parses the exams info and, when 
+  /// an exam is found, an object of the class [Exam]
+  /// is created and added to `examsList`.
   Future<List<Exam>> parseExams(http.Response response) async {
     final document = parse(response.body);
 
