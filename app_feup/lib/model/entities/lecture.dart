@@ -1,9 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
 
-/// Manages a generic Lecture.
-///
-/// This class stores all the information about a Lecture.
+/// Stores information about a lecture.
 class Lecture {
   static var dayName = [
     'Segunda-feira',
@@ -24,7 +22,6 @@ class Lecture {
   int blocks;
   int startTimeSeconds;
 
-  /// Creates an instance of the class [Lecture].
   Lecture(String subject, String typeClass, int day, int startTimeSeconds,
       int blocks, String room, String teacher) {
     this.subject = subject;
@@ -44,7 +41,6 @@ class Lecture {
         ((startTimeSeconds % 3600) ~/ 60).toString().padLeft(2, '0');
   }
 
-  /// Creates an instance of the class [Lecture].
   Lecture.secConstructor(String subject, String typeClass, int day,
       String startTime, int blocks, String room, String teacher) {
     this.subject = subject;
@@ -65,19 +61,20 @@ class Lecture {
         hour.toString().padLeft(2, '0') + 'h' + min.toString().padLeft(2, '0');
   }
 
-  /// Clones an instance of [Lecture].
+  /// Clones a [Lecture].
   static Lecture clone(Lecture lec) {
     return Lecture(lec.subject, lec.typeClass, lec.day, lec.startTimeSeconds,
         lec.blocks, lec.room, lec.teacher);
   }
 
-  /// Clones an instance of [Lecture].
+  // TODO: wtf does cloneHtml even mean?
+  /// Clones a [Lecture].
   static Lecture cloneHtml(Lecture lec) {
     return Lecture.secConstructor(lec.subject, lec.typeClass, lec.day,
         lec.startTime, lec.blocks, lec.room, lec.teacher);
   }
 
-  /// Converts a [Lecture] instance to map.
+  /// Converts this lecture to a map.
   Map<String, dynamic> toMap() {
     return {
       'subject': subject,
@@ -90,7 +87,7 @@ class Lecture {
     };
   }
 
-  /// Displays an instance of [Lecture] to the user.
+  /// Prints the data in this lecture to the [Logger] with an INFO level.
   printLecture() {
     Logger().i(subject + ' ' + typeClass);
     Logger().i(dayName[day] +
@@ -104,10 +101,7 @@ class Lecture {
     Logger().i(room + '  ' + teacher + '\n');
   }
 
-  /// Compares the times of two different instances of [Lecture].
-  /// 
-  /// If the lectures are going to happen in the same day, compares the start
-  /// times. If they aren't compares the days.
+  /// Compares the date and time of two different lectures.
   int compare(Lecture other) {
     if (day == other.day) {
       return startTime.compareTo(other.startTime);
