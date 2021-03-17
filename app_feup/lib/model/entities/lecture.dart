@@ -74,6 +74,7 @@ class Lecture {
         lec.startTime, lec.blocks, lec.room, lec.teacher);
   }
 
+
   /// Converts this lecture to a map.
   Map<String, dynamic> toMap() {
     return {
@@ -101,7 +102,7 @@ class Lecture {
     Logger().i(room + '  ' + teacher + '\n');
   }
 
-  /// Compares the date and time of two different lectures.
+  /// Compares the date and time of two lectures.
   int compare(Lecture other) {
     if (day == other.day) {
       return startTime.compareTo(other.startTime);
