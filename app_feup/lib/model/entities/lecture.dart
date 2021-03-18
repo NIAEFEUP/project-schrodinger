@@ -61,14 +61,14 @@ class Lecture {
         hour.toString().padLeft(2, '0') + 'h' + min.toString().padLeft(2, '0');
   }
 
-  /// Clones a [Lecture].
+  /// Clones a lecture.
   static Lecture clone(Lecture lec) {
     return Lecture(lec.subject, lec.typeClass, lec.day, lec.startTimeSeconds,
         lec.blocks, lec.room, lec.teacher);
   }
 
   // TODO: wtf does cloneHtml even mean?
-  /// Clones a [Lecture].
+  /// Clones a lecture.
   static Lecture cloneHtml(Lecture lec) {
     return Lecture.secConstructor(lec.subject, lec.typeClass, lec.day,
         lec.startTime, lec.blocks, lec.room, lec.teacher);
