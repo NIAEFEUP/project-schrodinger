@@ -1,5 +1,8 @@
 import 'package:logger/logger.dart';
 
+// TODO: this sounds weird.
+/// Maps the name of the years of the month to their corresponding numerical
+/// value.
 var months = {
   'Janeiro': '01',
   'Fevereiro': '02',
@@ -15,6 +18,7 @@ var months = {
   'Dezembro': '12'
 };
 
+/// Stores information about an exam.
 class Exam {
   String subject;
   String begin;
@@ -61,6 +65,7 @@ class Exam {
         .firstWhere((k) => months[k] == dateSepared[1], orElse: () => null);
   }
 
+  /// Converts this exam to a map.
   Map<String, dynamic> toMap() {
     return {
       'subject': subject,
@@ -75,6 +80,7 @@ class Exam {
     };
   }
 
+  /// Returns whether or not this exam has already ended.
   bool hasEnded() {
     final DateTime now = DateTime.now();
     final int endHour = int.parse(end.split(':')[0]);
@@ -84,6 +90,7 @@ class Exam {
     return now.compareTo(endDateTime) <= 0;
   }
 
+  /// Prints the data in this exam to the [Logger] with an INFO level.
   void printExam() {
     Logger().i(
         '''$subject - $year - $month - $day -  $begin-$end - $examType - $rooms - $weekDay''');

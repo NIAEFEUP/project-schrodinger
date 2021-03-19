@@ -2,6 +2,9 @@ import 'package:uni/model/entities/lecture.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+/// Returns a sorted list of exams from an HTTP response.
+/// 
+/// This function parses the json and returns a list of exams
 Future<List<Lecture>> parseSchedule(http.Response response) async {
   final Set<Lecture> lectures =  Set();
 
