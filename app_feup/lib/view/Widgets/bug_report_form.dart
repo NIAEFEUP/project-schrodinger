@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
+//import 'dart:io';
 import 'package:logger/logger.dart';
+import 'package:sentry/sentry.dart';
 import 'package:uni/view/Widgets/form_text_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:uni/view/theme.dart' as theme;
@@ -8,7 +9,7 @@ import 'package:toast/toast.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'package:tuple/tuple.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -20,8 +21,6 @@ class BugReportForm extends StatefulWidget {
 }
 
 class BugReportFormState extends State<BugReportForm> {
-  final String _postUrl =
-      'https://api.github.com/repos/NIAEFEUP/project-schrodinger/issues';
   final String _issueLabel = 'In-app bug report';
 
   static final _formKey = GlobalKey<FormState>();
@@ -41,13 +40,13 @@ class BugReportFormState extends State<BugReportForm> {
   static final TextEditingController descriptionController =
       TextEditingController();
   static final TextEditingController emailController = TextEditingController();
-  String ghToken = '';
+  //String ghToken = '';
 
   bool _isButtonTapped = false;
   bool _isConsentGiven = false;
 
   BugReportFormState() {
-    if (ghToken == '') loadGHKey();
+    //if (ghToken == '') loadGHKey();
     loadBugClassList();
   }
 
@@ -193,7 +192,8 @@ class BugReportFormState extends State<BugReportForm> {
         child: CheckboxListTile(
           activeColor: Theme.of(context).primaryColor,
           title: Text(
-              '''Consinto que toda esta informação seja disponibilizada publicamente na plataforma GitHub, incluindo o meu contacto pessoal, se fornecido.''',
+              '''Consinto que esta informação seja revista pelo NIAEFEUP, podendo ser eliminada a meu pedido.''',
+              //'''Consinto que toda esta informação seja disponibilizada publicamente na plataforma GitHub, incluindo o meu contacto pessoal, se fornecido.''',
               style: Theme.of(context).textTheme.bodyText2,
               textAlign: TextAlign.left),
           value: _isConsentGiven,
@@ -248,12 +248,32 @@ class BugReportFormState extends State<BugReportForm> {
     final String description = emailController.text == ''
         ? descriptionController.text
         : descriptionController.text + '\nContact: ' + emailController.text;
+    final String title = titleController.text;
+
     final Map data = {
       'title': titleController.text,
       'body': description,
       'labels': [_issueLabel, bugLabel],
     };
 
+    String toastMsg;
+    try {
+      Sentry.captureMessage(bugLabel + ': ' + title + '\n' + description);
+      Logger().i('Successfully submitted bug report.');
+      toastMsg = 'Enviado com sucesso';
+    } catch (e) {
+      Logger().e('Error while posting bug report to Sentry');
+      toastMsg = 'Ocorreu um erro no envio';
+    }
+
+    clearForm();
+    FocusScope.of(context).requestFocus(FocusNode());
+    displayToastMessage(toastMsg);
+    setState(() {
+      _isButtonTapped = false;
+    });
+
+    /*
     http
         .post(Uri.parse(_postUrl + '?access_token=' + ghToken),
             headers: {'Content-Type': 'application/json'},
@@ -293,9 +313,10 @@ class BugReportFormState extends State<BugReportForm> {
         _isButtonTapped = false;
       });
     });
+    */
   }
 
-  void displayErrorToast(String msg) {
+  void displayToastMessage(String msg) {
     Toast.show(
       msg,
       context,
@@ -318,15 +339,15 @@ class BugReportFormState extends State<BugReportForm> {
     });
   }
 
-  Future<Map<String, dynamic>> parseJsonFromAssets(String assetsPath) async {
+/*   Future<Map<String, dynamic>> parseJsonFromAssets(String assetsPath) async {
     return rootBundle
         .loadString(assetsPath)
         .then((jsonStr) => jsonDecode(jsonStr));
-  }
+  } */
 
-  void loadGHKey() async {
+  /* void loadGHKey() async {
     final Map<String, dynamic> dataMap =
         await parseJsonFromAssets('assets/env/env.json');
     this.ghToken = dataMap['gh_token'];
-  }
+  } */
 }
