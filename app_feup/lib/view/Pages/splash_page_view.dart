@@ -11,7 +11,7 @@ import 'package:uni/view/theme.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
-  _SplashScreenState createState() =>  _SplashScreenState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     queryData = MediaQuery.of(context);
-    return  Scaffold(
+    return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
@@ -60,8 +60,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget createTitle() {
-    return  ConstrainedBox(
-        constraints:  BoxConstraints(
+    return ConstrainedBox(
+        constraints: BoxConstraints(
           minWidth: queryData.size.width / 8,
           minHeight: queryData.size.height / 6,
         ),
@@ -88,13 +88,11 @@ class _SplashScreenState extends State<SplashScreen> {
     final String userName = userPersistentInfo.item1;
     final String password = userPersistentInfo.item2;
     if (userName != '' && password != '') {
-      nextRoute =
-           MaterialPageRoute(builder: (context) =>  HomePageView());
+      nextRoute = MaterialPageRoute(builder: (context) => HomePageView());
       StoreProvider.of<AppState>(context)
           .dispatch(reLogin(userName, password, 'feup'));
     } else {
-      nextRoute =
-           MaterialPageRoute(builder: (context) =>  LoginPageView());
+      nextRoute = MaterialPageRoute(builder: (context) => LoginPageView());
     }
 
     Navigator.pushReplacement(context, nextRoute);

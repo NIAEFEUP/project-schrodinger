@@ -257,17 +257,20 @@ class BugReportFormState extends State<BugReportForm> {
           : descriptionController.text + '\nContact: ' + emailController.text;
       final sentryId = await Sentry.captureMessage(
           bugLabel + ': ' + title + '\n' + sentryDescription);
+
       final String gitHubDescription =
           descriptionController.text + '\n' + _sentryLink + sentryId.toString();
-
       final Map gitHubData = {
         'title': titleController.text,
         'body': gitHubDescription,
         'labels': [_issueLabel, bugLabel],
       };
       http
-          .post(Uri.parse(_gitHubPostUrl + '?access_token=' + ghToken),
-              headers: {'Content-Type': 'application/json'},
+          .post(Uri.parse(_gitHubPostUrl),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'token $ghToken'
+              },
               body: json.encode(gitHubData))
           .then((http.Response response) {
         final int statusCode = response.statusCode;
