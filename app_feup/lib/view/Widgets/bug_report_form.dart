@@ -1,5 +1,5 @@
 import 'dart:convert';
-//import 'dart:io';
+import 'dart:io';
 import 'package:logger/logger.dart';
 import 'package:sentry/sentry.dart';
 import 'package:uni/view/Widgets/form_text_field.dart';
@@ -9,7 +9,7 @@ import 'package:toast/toast.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'package:tuple/tuple.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -21,6 +21,10 @@ class BugReportForm extends StatefulWidget {
 }
 
 class BugReportFormState extends State<BugReportForm> {
+  final String _gitHubPostUrl =
+      'https://api.github.com/repos/NIAEFEUP/project-schrodinger/issues';
+  final String _sentryLink =
+      'https://sentry.io/organizations/niaefeup/issues/?query=';
   final String _issueLabel = 'In-app bug report';
 
   static final _formKey = GlobalKey<FormState>();
@@ -40,13 +44,13 @@ class BugReportFormState extends State<BugReportForm> {
   static final TextEditingController descriptionController =
       TextEditingController();
   static final TextEditingController emailController = TextEditingController();
-  //String ghToken = '';
+  String ghToken = '';
 
   bool _isButtonTapped = false;
   bool _isConsentGiven = false;
 
   BugReportFormState() {
-    //if (ghToken == '') loadGHKey();
+    if (ghToken == '') loadGHKey();
     loadBugClassList();
   }
 
@@ -193,7 +197,6 @@ class BugReportFormState extends State<BugReportForm> {
           activeColor: Theme.of(context).primaryColor,
           title: Text(
               '''Consinto que esta informação seja revista pelo NIAEFEUP, podendo ser eliminada a meu pedido.''',
-              //'''Consinto que toda esta informação seja disponibilizada publicamente na plataforma GitHub, incluindo o meu contacto pessoal, se fornecido.''',
               style: Theme.of(context).textTheme.bodyText2,
               textAlign: TextAlign.left),
           value: _isConsentGiven,
@@ -237,32 +240,45 @@ class BugReportFormState extends State<BugReportForm> {
     ));
   }
 
-  void submitBugReport() {
+  void submitBugReport() async {
     setState(() {
       _isButtonTapped = true;
     });
 
+    final String title = titleController.text;
     final String bugLabel = bugDescriptions[_selectedBug] == null
         ? 'Unidentified bug'
         : bugDescriptions[_selectedBug].item2;
-    final String description = emailController.text == ''
-        ? descriptionController.text
-        : descriptionController.text + '\nContact: ' + emailController.text;
-    final String title = titleController.text;
-
-    final Map data = {
-      'title': titleController.text,
-      'body': description,
-      'labels': [_issueLabel, bugLabel],
-    };
 
     String toastMsg;
     try {
-      Sentry.captureMessage(bugLabel + ': ' + title + '\n' + description);
+      final String sentryDescription = emailController.text == ''
+          ? descriptionController.text
+          : descriptionController.text + '\nContact: ' + emailController.text;
+      final sentryId = await Sentry.captureMessage(
+          bugLabel + ': ' + title + '\n' + sentryDescription);
+      final String gitHubDescription =
+          descriptionController.text + '\n' + _sentryLink + sentryId.toString();
+
+      final Map gitHubData = {
+        'title': titleController.text,
+        'body': gitHubDescription,
+        'labels': [_issueLabel, bugLabel],
+      };
+      http
+          .post(Uri.parse(_gitHubPostUrl + '?access_token=' + ghToken),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode(gitHubData))
+          .then((http.Response response) {
+        final int statusCode = response.statusCode;
+        if (statusCode < 200 || statusCode > 400) {
+          throw Exception('Network error');
+        }
+      });
       Logger().i('Successfully submitted bug report.');
       toastMsg = 'Enviado com sucesso';
     } catch (e) {
-      Logger().e('Error while posting bug report to Sentry');
+      Logger().e('Error while posting bug report:' + e.toString());
       toastMsg = 'Ocorreu um erro no envio';
     }
 
@@ -272,48 +288,6 @@ class BugReportFormState extends State<BugReportForm> {
     setState(() {
       _isButtonTapped = false;
     });
-
-    /*
-    http
-        .post(Uri.parse(_postUrl + '?access_token=' + ghToken),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(data))
-        .then((http.Response response) {
-      final int statusCode = response.statusCode;
-
-      String msg;
-      if (statusCode < 200 || statusCode > 400) {
-        Logger().e('Error ' + statusCode.toString() + ' while posting bug');
-        msg = 'Ocorreu um erro no envio';
-      } else {
-        Logger().i('Successfully submitted bug report.');
-        msg = 'Enviado com sucesso';
-
-        clearForm();
-
-        Navigator.pop(context);
-        setState(() {
-          _isButtonTapped = false;
-        });
-      }
-
-      FocusScope.of(context).requestFocus(FocusNode());
-      displayErrorToast(msg);
-      setState(() {
-        _isButtonTapped = false;
-      });
-    }).catchError((error) {
-      Logger().e(error);
-      FocusScope.of(context).requestFocus(FocusNode());
-
-      final String msg =
-          (error is SocketException) ? 'Falha de rede' : 'Ocorreu um erro';
-      displayErrorToast(msg);
-      setState(() {
-        _isButtonTapped = false;
-      });
-    });
-    */
   }
 
   void displayToastMessage(String msg) {
@@ -339,15 +313,15 @@ class BugReportFormState extends State<BugReportForm> {
     });
   }
 
-/*   Future<Map<String, dynamic>> parseJsonFromAssets(String assetsPath) async {
+  Future<Map<String, dynamic>> parseJsonFromAssets(String assetsPath) async {
     return rootBundle
         .loadString(assetsPath)
         .then((jsonStr) => jsonDecode(jsonStr));
-  } */
+  }
 
-  /* void loadGHKey() async {
+  void loadGHKey() async {
     final Map<String, dynamic> dataMap =
         await parseJsonFromAssets('assets/env/env.json');
     this.ghToken = dataMap['gh_token'];
-  } */
+  }
 }
