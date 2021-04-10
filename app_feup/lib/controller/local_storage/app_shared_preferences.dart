@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:tuple/tuple.dart';
+import 'package:uni/model/entities/exam.dart';
 import 'package:uni/model/home_page_model.dart';
 
 class AppSharedPreferences {
@@ -19,6 +20,9 @@ class AppSharedPreferences {
     FAVORITE_WIDGET_TYPE.exams,
     FAVORITE_WIDGET_TYPE.busStops
   ];
+  static final String filteredExamsTypes = 'filtered_exam_types';
+  static final List<String> defaultFilteredExamTypes =
+      Exam.getExamTypes().keys.toList();
 
   static Future savePersistentUserInfo(user, pass) async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,7 +39,7 @@ class AppSharedPreferences {
   static Future<Tuple2<String, String>> getPersistentUserInfo() async {
     final String userNum = await getUserNumber();
     final String userPass = await getUserPassword();
-    return  Tuple2(userNum, userPass);
+    return Tuple2(userNum, userPass);
   }
 
   static Future<String> getUserNumber() async {
@@ -71,6 +75,27 @@ class AppSharedPreferences {
             .map((i) => FAVORITE_WIDGET_TYPE.values[int.parse(i)])
             .toList() ??
         defaultFavoriteCards;
+  }
+
+  static saveFilteredExams(Map<String, bool> newFilteredExamTypes) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final List<String> newTypes = newFilteredExamTypes.keys
+        .where((type) => newFilteredExamTypes[type] == true)
+        .toList();
+    prefs.setStringList(filteredExamsTypes, newTypes);
+  }
+
+  static Future<Map<String, bool>> getFilteredExams() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> storedFilteredExamTypes =
+        prefs.getStringList(filteredExamsTypes);
+
+    if (storedFilteredExamTypes == null) {
+      return Map.fromIterable(defaultFilteredExamTypes, value: (type) => true);
+    }
+    return Map.fromIterable(defaultFilteredExamTypes,
+        value: (type) => storedFilteredExamTypes.contains(type));
   }
 
   static String encode(String plainText) {

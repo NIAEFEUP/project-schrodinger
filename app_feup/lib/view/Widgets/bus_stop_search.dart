@@ -49,7 +49,7 @@ class BusStopSearch extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Container();
+    return getSuggestionList(context);
   }
 
   void updateStopCallback(String stopCode, BusStopData stopData) {

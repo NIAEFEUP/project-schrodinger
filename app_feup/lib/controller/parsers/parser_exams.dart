@@ -3,20 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart';
 import 'dart:async';
+
 class ParserExams {
-
-  final types = {
-    'Especial de Conclusão': 'EC',
-    'Port.Est.Especiais': 'EE',
-    'Mini-testes': 'MT',
-    'Normal': 'EN',
-    'Recurso': 'ER'
-  };
-
-
   String getExamSeasonAbbr(String seasonStr) {
-    for (String type in types.keys) {
-      if (seasonStr.contains(type)) return types[type];
+    final Map<String, String> examTypes = Exam.getExamTypes();
+    for (String type in examTypes.keys) {
+      if (seasonStr.contains(type)) return examTypes[type];
     }
     return '?';
   }

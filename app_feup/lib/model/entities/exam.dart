@@ -15,6 +15,15 @@ var months = {
   'Dezembro': '12'
 };
 
+var _types = {
+  'Mini-testes': 'MT',
+  'Normal': 'EN',
+  'Recurso': 'ER',
+  'Especial de Conclusão': 'EC',
+  'Port.Est.Especiais': 'EE',
+  'Exames ao abrigo de estatutos especiais': 'EAE'
+};
+
 class Exam {
   String subject;
   String begin;
@@ -92,5 +101,14 @@ class Exam {
   @override
   String toString() {
     return '''$subject - $year - $month - $day -  $begin-$end - $examType - $rooms - $weekDay''';
+  }
+
+  static Map<String, String> getExamTypes() {
+    return _types;
+  }
+
+  static getExamTypeLong(String abr) {
+    final Map<String, String> reversed = _types.map((k, v) => MapEntry(v, k));
+    return reversed[abr];
   }
 }
