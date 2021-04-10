@@ -24,7 +24,6 @@ class BugReportFormState extends State<BugReportForm> {
       'https://api.github.com/repos/NIAEFEUP/project-schrodinger/issues';
   final String _sentryLink =
       'https://sentry.io/organizations/niaefeup/issues/?query=';
-  final String _issueLabel = 'In-app bug report';
 
   static final _formKey = GlobalKey<FormState>();
 
@@ -170,7 +169,7 @@ class BugReportFormState extends State<BugReportForm> {
                 )),
             Expanded(
                 child: DropdownButton(
-              hint: Text('Seleciona o tipo de ocorrência'),
+              hint: Text('Tipo de ocorrência'),
               items: bugList,
               value: _selectedBug,
               onChanged: (value) {
@@ -244,39 +243,17 @@ class BugReportFormState extends State<BugReportForm> {
       _isButtonTapped = true;
     });
 
-    final String title = titleController.text;
     final String bugLabel = bugDescriptions[_selectedBug] == null
         ? 'Unidentified bug'
         : bugDescriptions[_selectedBug].item2;
 
     String toastMsg;
     try {
-      final String sentryDescription = emailController.text == ''
-          ? descriptionController.text
-          : descriptionController.text + '\nContact: ' + emailController.text;
-      final sentryId = await Sentry.captureMessage(
-          bugLabel + ': ' + title + '\n' + sentryDescription);
-
-      final String gitHubDescription =
-          descriptionController.text + '\n' + _sentryLink + sentryId.toString();
-      final Map gitHubData = {
-        'title': titleController.text,
-        'body': gitHubDescription,
-        'labels': [_issueLabel, bugLabel],
-      };
-      http
-          .post(Uri.parse(_gitHubPostUrl),
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'token $ghToken'
-              },
-              body: json.encode(gitHubData))
-          .then((http.Response response) {
-        final int statusCode = response.statusCode;
-        if (statusCode < 200 || statusCode > 400) {
-          throw Exception('Network error');
-        }
-      });
+      final sentryId = await submitSentryEvent(bugLabel);
+      final gitHubRequestStatus = await submitGitHubIssue(sentryId, bugLabel);
+      if (gitHubRequestStatus < 200 || gitHubRequestStatus > 400) {
+        throw Exception('Network error');
+      }
       Logger().i('Successfully submitted bug report.');
       toastMsg = 'Enviado com sucesso';
     } catch (e) {
@@ -286,19 +263,50 @@ class BugReportFormState extends State<BugReportForm> {
 
     clearForm();
     FocusScope.of(context).requestFocus(FocusNode());
-    displayToastMessage(toastMsg);
+    displayToastMessage(toastMsg, toastMsg != 'Enviado com sucesso');
+
     setState(() {
       _isButtonTapped = false;
     });
   }
 
-  void displayToastMessage(String msg) {
+  Future<int> submitGitHubIssue(SentryId sentryEvent, String bugLabel) async {
+    final String description = descriptionController.text +
+        '\nFurther information on: ' +
+        _sentryLink +
+        sentryEvent.toString();
+    final Map data = {
+      'title': titleController.text,
+      'body': description,
+      'labels': ['In-app bug report', bugLabel],
+    };
+    return http
+        .post(Uri.parse(_gitHubPostUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'token $ghToken'
+            },
+            body: json.encode(data))
+        .then((http.Response response) {
+      return response.statusCode;
+    });
+  }
+
+  Future<SentryId> submitSentryEvent(String bugLabel) async {
+    final String description = emailController.text == ''
+        ? descriptionController.text
+        : descriptionController.text + '\nContact: ' + emailController.text;
+    return Sentry.captureMessage(
+        bugLabel + ': ' + titleController.text + '\n' + description);
+  }
+
+  void displayToastMessage(String msg, bool error) {
     Toast.show(
       msg,
       context,
       duration: Toast.LENGTH_LONG,
       gravity: Toast.BOTTOM,
-      backgroundColor: theme.toastColor,
+      backgroundColor: error ? Colors.red : theme.toastColor,
       backgroundRadius: 16.0,
       textColor: Colors.white,
     );
