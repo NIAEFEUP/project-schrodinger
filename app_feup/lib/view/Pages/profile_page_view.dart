@@ -27,6 +27,7 @@ class ProfilePageView extends StatefulWidget {
       name: name, email: email, currentState: currentState, courses: courses);
 }
 
+/// Manages the 'Personal user page' section 
 class ProfilePageViewState extends UnnamedPageView {
   ProfilePageViewState(
       {Key key,
@@ -50,6 +51,7 @@ class ProfilePageViewState extends UnnamedPageView {
     return Container();
   }
 
+  /// Returns a list with all the children widgets of this page
   List<Widget> childrenList(BuildContext context) {
     final List<Widget> list =  List();
     list.add(Padding(padding: const EdgeInsets.all(5.0)));
@@ -68,6 +70,7 @@ class ProfilePageViewState extends UnnamedPageView {
     return list;
   }
 
+  /// Returns a widget with the user's profile info (Picture, name and email)
   Widget profileInfo(BuildContext context) {
     return StoreConnector<AppState, Future<File>>(
       converter: (store) => loadProfilePic(store),

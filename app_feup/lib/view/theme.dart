@@ -17,6 +17,7 @@ const Color lightGreyTextColor = Color.fromARGB(255, 90, 90, 90);
 const Color divider = Color.fromARGB(255, 180, 180, 180);
 const Color hintColor = Colors.white;
 
+/// Manages the theme of the app (text, background, brightness, etc.)
 ThemeData applicationTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: primaryColor,

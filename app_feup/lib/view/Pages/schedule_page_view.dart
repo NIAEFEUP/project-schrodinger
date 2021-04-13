@@ -40,6 +40,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
+/// Manages the 'schedule' sections of the app
 class SchedulePageView extends StatefulWidget {
   SchedulePageView(
       {Key key,
@@ -115,6 +116,7 @@ class SchedulePageViewState extends SecondaryPageViewState {
     );
   }
 
+  /// Returns a list of widgets empty with tabs for each day of the week
   List<Widget> createTabs(queryData, BuildContext context) {
     final List<Widget> tabs = List<Widget>();
     for (var i = 0; i < daysOfTheWeek.length; i++) {
@@ -135,6 +137,7 @@ class SchedulePageViewState extends SecondaryPageViewState {
     return tabBarViewContent;
   }
 
+  /// Returns a list of widgets for the rows with a singular class info
   List<Widget> createScheduleRows(lectures, BuildContext context) {
     final List<Widget> scheduleContent = List<Widget>();
     for (int i = 0; i < lectures.length; i++) {
@@ -151,6 +154,7 @@ class SchedulePageViewState extends SecondaryPageViewState {
     return scheduleContent;
   }
 
+  /// Creates a column widget with all the classes of a full day
   Widget createDayColumn(dayContent, BuildContext context) {
     return Container(
         child:  Column(
@@ -159,6 +163,7 @@ class SchedulePageViewState extends SecondaryPageViewState {
     ));
   }
 
+  /// Creates the full schedule widget of a single day
   Widget createScheduleByDay(BuildContext context, day) {
     return StoreConnector<AppState, RequestStatus>(
         converter: (store) => store.state.content['scheduleStatus'],

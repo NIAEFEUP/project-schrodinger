@@ -7,6 +7,8 @@ class HomePageView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => HomePageViewState();
 }
+
+/// Tracks the state of home page
 class HomePageViewState extends GeneralPageViewState {
 
   @override
