@@ -1,7 +1,6 @@
 import 'package:uni/model/app_state.dart';
 import 'package:uni/model/entities/lecture.dart';
 import 'package:flutter/material.dart';
-import 'package:uni/model/entities/subject.dart';
 import 'package:uni/view/Widgets/page_title.dart';
 import 'package:uni/view/Widgets/request_dependent_widget_builder.dart';
 import 'package:uni/view/Widgets/schedule_slot.dart';
@@ -130,9 +129,17 @@ class SchedulePageView extends StatelessWidget {
     );
   }
 
+  String toUcLink(int occurrId) {
+    return 'https://sigarra.up.pt/feup/pt/UCURR_GERAL.FICHA_UC_VIEW?pv_ocorrencia_id='
+        +
+        (occurrId).toString();
+  }
+
   _launchURL() async {
-    int id = 459465;
-    String url = toUcLink(id);
+    //courseExam.subject == uc.abbreviation
+    //final int occurId = lecture.subject
+    final int occurId = 459465;
+    final String url = toUcLink(occurId);
     if (await canLaunch(url)) {
       await launch(url);
     } else {
