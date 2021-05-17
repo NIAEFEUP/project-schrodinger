@@ -1,9 +1,11 @@
 import 'package:uni/model/app_state.dart';
 import 'package:uni/model/entities/lecture.dart';
 import 'package:flutter/material.dart';
+import 'package:uni/model/entities/subject.dart';
 import 'package:uni/view/Widgets/page_title.dart';
 import 'package:uni/view/Widgets/request_dependent_widget_builder.dart';
 import 'package:uni/view/Widgets/schedule_slot.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SchedulePageView extends StatelessWidget {
   SchedulePageView(
@@ -112,5 +114,29 @@ class SchedulePageView extends StatelessWidget {
       onNullContent:
           Center(child: Text('Não possui aulas à ' + daysOfTheWeek[day] + '.')),
     );
+  }
+
+  Widget createSubjectButton(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.open_in_browser),
+          tooltip: 'Abrir página da UC no browser',
+          onPressed: () => _launchURL,
+        ),
+        Text('uc page')
+      ],
+    );
+  }
+
+  _launchURL() async {
+    int id = 459465;
+    String url = toUcLink(id);
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
