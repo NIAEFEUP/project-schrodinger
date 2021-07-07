@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
@@ -11,11 +12,11 @@ class AppSharedPreferences {
   static final String userNumber = 'user_number';
   static final String userPw = 'user_password';
   static final String termsAndConditions = 'terms_and_conditions';
-  static final String areTermsAndConditionsAcceptedKey =
-      'is_t&c_accepted';
+  static final String themeMode = 'theme_mode';
+  static final String areTermsAndConditionsAcceptedKey = 'is_t&c_accepted';
   static final int keyLength = 32;
   static final int ivLength = 16;
-  static final iv = IV.fromLength(ivLength);
+  static final iv = encrypt.IV.fromLength(ivLength);
 
   static final String favoriteCards = 'favorite_cards';
   static final List<FAVORITE_WIDGET_TYPE> defaultFavoriteCards = [
@@ -51,6 +52,11 @@ class AppSharedPreferences {
   static Future<bool> setTermsAndConditionHash(String hashed) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setString(termsAndConditions, hashed);
+  }
+
+  static Future<ThemeMode> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return ThemeMode.values[prefs.getInt(themeMode)];
   }
 
   static Future removePersistentUserInfo() async {
@@ -131,8 +137,8 @@ class AppSharedPreferences {
     return encrypter.decrypt64(base64Text, iv: iv);
   }
 
-  static Encrypter _createEncrypter() {
-    final key = Key.fromLength(keyLength);
-    return Encrypter(AES(key));
+  static encrypt.Encrypter _createEncrypter() {
+    final key = encrypt.Key.fromLength(keyLength);
+    return encrypt.Encrypter(encrypt.AES(key));
   }
 }

@@ -118,6 +118,3 @@ ThemeData applicationDarkTheme = ThemeData(
           primary: Colors.white,
           textStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400))),
 );
-
-ThemeData applicationPureDarkTheme =
-    applicationDarkTheme.copyWith(scaffoldBackgroundColor: Colors.black);
