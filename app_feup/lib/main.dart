@@ -19,6 +19,7 @@ import 'package:uni/view/Pages/splash_page_view.dart';
 import 'package:uni/view/Widgets/page_transition.dart';
 import 'package:uni/view/navigation_service.dart';
 import 'package:uni/view/theme.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 
 import 'controller/on_start_up.dart';
 import 'model/schedule_page_model.dart';
@@ -28,15 +29,24 @@ final Store<AppState> state = Store<AppState>(appReducers,
     initialState: AppState(null),
     middleware: [generalMiddleware]);
 
-void main() {
+void main() async {
   OnStartUp.onStart(state);
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
+  runApp(MyApp(savedThemeMode: savedThemeMode));
 }
 
 class MyApp extends StatefulWidget {
+  MyApp({
+    this.savedThemeMode,
+  }) {}
+
+  final AdaptiveThemeMode savedThemeMode;
+
   @override
   State<StatefulWidget> createState() {
     return MyAppState(
+        savedThemeMode: this.savedThemeMode,
         state: Store<AppState>(appReducers,
             /* Function defined in the reducers file */
             initialState: AppState(null),
@@ -45,9 +55,13 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  MyAppState({@required this.state}) {}
+  MyAppState({
+    @required this.state,
+    @required this.savedThemeMode,
+  }) {}
 
   final Store<AppState> state;
+  final AdaptiveThemeMode savedThemeMode;
 
   @override
   Widget build(BuildContext context) {
@@ -56,40 +70,43 @@ class MyAppState extends State<MyApp> {
     ]);
     return StoreProvider(
       store: state,
-      child: MaterialApp(
-          title: 'uni',
-          theme: applicationLightTheme,
-          darkTheme: applicationDarkTheme,
-          themeMode: ThemeMode.system,
-          home: SplashScreen(),
-          navigatorKey: NavigationService.navigatorKey,
-          // ignore: missing_return
-          onGenerateRoute: (RouteSettings settings) {
-            switch (settings.name) {
-              case '/' + Constants.navPersonalArea:
-                return PageTransition.makePageTransition(
-                    page: HomePageView(), settings: settings);
-              case '/' + Constants.navSchedule:
-                return PageTransition.makePageTransition(
-                    page: SchedulePage(), settings: settings);
-              case '/' + Constants.navExams:
-                return PageTransition.makePageTransition(
-                    page: ExamsPageView(), settings: settings);
-              case '/' + Constants.navStops:
-                return PageTransition.makePageTransition(
-                    page: BusStopNextArrivalsPage(), settings: settings);
-              case '/' + Constants.navAbout:
-                return PageTransition.makePageTransition(
-                    page: AboutPageView(), settings: settings);
-              case '/' + Constants.navBugReport:
-                return PageTransition.makePageTransition(
-                    page: BugReportPageView(),
-                    settings: settings,
-                    maintainState: false);
-              case '/' + Constants.navLogOut:
-                return LogoutRoute.buildLogoutRoute();
-            }
-          }),
+      child: AdaptiveTheme(
+          light: applicationLightTheme,
+          dark: applicationDarkTheme,
+          initial: savedThemeMode ?? AdaptiveThemeMode.system,
+          builder: (theme, darkTheme) => MaterialApp(
+              title: 'uni',
+              theme: theme,
+              darkTheme: darkTheme,
+              home: SplashScreen(),
+              navigatorKey: NavigationService.navigatorKey,
+              // ignore: missing_return
+              onGenerateRoute: (RouteSettings settings) {
+                switch (settings.name) {
+                  case '/' + Constants.navPersonalArea:
+                    return PageTransition.makePageTransition(
+                        page: HomePageView(), settings: settings);
+                  case '/' + Constants.navSchedule:
+                    return PageTransition.makePageTransition(
+                        page: SchedulePage(), settings: settings);
+                  case '/' + Constants.navExams:
+                    return PageTransition.makePageTransition(
+                        page: ExamsPageView(), settings: settings);
+                  case '/' + Constants.navStops:
+                    return PageTransition.makePageTransition(
+                        page: BusStopNextArrivalsPage(), settings: settings);
+                  case '/' + Constants.navAbout:
+                    return PageTransition.makePageTransition(
+                        page: AboutPageView(), settings: settings);
+                  case '/' + Constants.navBugReport:
+                    return PageTransition.makePageTransition(
+                        page: BugReportPageView(),
+                        settings: settings,
+                        maintainState: false);
+                  case '/' + Constants.navLogOut:
+                    return LogoutRoute.buildLogoutRoute();
+                }
+              })),
     );
   }
 
