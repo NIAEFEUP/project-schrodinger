@@ -64,12 +64,6 @@ class AppSharedPreferences {
     return prefs.setInt(themeMode, thmMode.index);
   }
 
-  static Future<bool> setNextThemeMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeIndex = (await getThemeMode()).index;
-    return prefs.setInt(themeMode, (themeIndex + 1) % 3);
-  }
-
   static Future removePersistentUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(userNumber);
